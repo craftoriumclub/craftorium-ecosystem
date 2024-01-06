@@ -71,6 +71,29 @@ export class Wallet {
     window.location.replace(window.location.origin + window.location.pathname);
   }
 
+  async signMessage(message) {
+    if (!this.wallet) return null;
+
+    try {
+      // Assuming the wallet object has a signMessage function
+      // This is conceptual and may differ based on NEAR's API
+      const wallet = await selector.wallet("my-near-wallet");
+
+      await wallet.verifyOwner({
+        message: message,
+      });
+
+
+
+      const { signature, publicKey } = await this.wallet.signMessage();
+      return { signature, publicKey };
+    } catch (error) {
+      console.error('Error signing message:', error);
+    }
+
+    return null;
+  }
+
   // Make a read-only call to retrieve information from the network
   async viewMethod({ contractId, method, args = {} }) {
     const { network } = this.walletSelector.options;
