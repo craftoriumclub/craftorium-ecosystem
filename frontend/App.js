@@ -1,6 +1,10 @@
 import 'regenerator-runtime/runtime';
 import React from 'react';
 import SignIn from './components/SignIn';
+
+import './App.css';
+
+
 const App = ({isSignedIn, wallet}) => {
     const signIn = () => {
         wallet.signIn()
@@ -10,24 +14,25 @@ const App = ({isSignedIn, wallet}) => {
         wallet.signOut()
     }
 
-
     return (
         <main>
             <h1>Craftorium Exchange</h1>
             {isSignedIn
                 ? (
                     <>
+                        <button onClick={signOut} className="button">>Log out</button>
                         <p>You are signed in as {wallet.getAccountId()}</p>
-                        <button onClick={signOut}>Log out</button>
+
                     </>
+
                 )
                 : (
                     <>
-                        <p>You are not signed in</p>
-                        <button onClick={signIn}>Log in</button>
+                        <button onClick={signIn} className="button">Log in</button>
                         <SignIn/>
                     </>
                 )
+
             }
 
             <hr/>
