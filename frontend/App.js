@@ -3,6 +3,7 @@ import {React, useState} from 'react';
 import SignIn from './components/SignIn';
 import MessageSigningForm from './components/MessageSigningForm';
 import MessageVerificationForm from './components/MessageVerificationForm';
+import MessagesDisplay from './components/MessagesDisplay';
 
 import './App.css';
 
@@ -18,7 +19,7 @@ const App = ({isSignedIn, wallet}) => {
     return (
         <div className="app-container">
             <main>
-                <h1>Craftorium Exchange</h1>
+                <h1>Craftorium Ecosystem</h1>
                 {isSignedIn
                     ? (
                         <>
@@ -40,6 +41,7 @@ const App = ({isSignedIn, wallet}) => {
                     <>
                         <MessageSigningForm />
                         <MessageVerificationForm />
+                        <MessagesDisplay />
                     </>
                 )}
 

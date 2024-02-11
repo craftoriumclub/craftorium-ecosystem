@@ -5,11 +5,30 @@ const MessageVerificationForm = () => {
     const [publicKey, setPublicKey] = useState('');
     const [message, setMessage] = useState('');
     const [signature, setSignature] = useState('');
-    const [isVerified, setIsVerified] = useState(null);
+    const [verificationResult, setVerificationResult] = useState('');
+    const [error, setError] = useState('');
 
-    const handleVerifyMessage = () => {
-        const mockVerificationResult = true;
-        setIsVerified(mockVerificationResult);
+    const handleVerifyMessage = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ address: publicKey, message, signature }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            setVerificationResult(data.verified ? 'Valid' : 'Invalid');
+            setError('');
+        } catch (error) {
+            setError('Error verifying message');
+            console.error('There was a problem with the fetch operation:', error);
+        }
     };
 
     return (
@@ -35,7 +54,8 @@ const MessageVerificationForm = () => {
                 placeholder="Signature"
             />
             <button className="button" onClick={handleVerifyMessage}>Verify Message</button>
-            {isVerified !== null && <div className="results-container">Verification Result: {isVerified ? 'Valid' : 'Invalid'}</div>}
+            {verificationResult && <div className="results-container">Verification Result: {verificationResult}</div>}
+            {error && <div className="error">{error}</div>}
         </div>
     );
 };
