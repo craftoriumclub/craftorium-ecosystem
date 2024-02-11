@@ -1,20 +1,12 @@
 import 'regenerator-runtime/runtime';
 import {React, useState} from 'react';
 import SignIn from './components/SignIn';
+import MessageSigningForm from './components/MessageSigningForm';
+import MessageVerificationForm from './components/MessageVerificationForm';
 
 import './App.css';
 
 const App = ({isSignedIn, wallet}) => {
-
-    const [message, setMessage] = useState('');
-    const [signatureResult, setSignatureResult] = useState(null);
-
-    const signMessage = async () => {
-        const result = await wallet.signMessage(message);
-        setSignatureResult(result);
-    };
-
-
     const signIn = () => {
         wallet.signIn()
     }
@@ -42,26 +34,16 @@ const App = ({isSignedIn, wallet}) => {
                             <SignIn/>
                         </>
                     )
-
                 }
 
                 {isSignedIn && (
-                    <div>
-                        <h2>Sign a Message</h2>
-                        <textarea
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Enter a message to sign"
-                        ></textarea>
-                        <button className="button" onClick={signMessage}>Sign Message</button>
-                        {signatureResult && (
-                            <div>
-                                <p>Signature: {signatureResult.signature}</p>
-                                <p>Public Key: {signatureResult.publicKey}</p>
-                            </div>
-                        )}
-                    </div>
+                    <>
+                        <MessageSigningForm />
+                        <MessageVerificationForm />
+                    </>
                 )}
+
+
 
                 <hr/>
             </main>
