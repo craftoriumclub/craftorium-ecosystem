@@ -11,7 +11,7 @@ Run project production:
 
 ```shell
 $ cd craftorium-ecosystem
-$ git pull origin main
+$ git pull origin master
 $ docker-compose up --build -d
 ```
 
