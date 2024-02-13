@@ -1,12 +1,23 @@
 version: '3.9'
 
 services:
-  app-server:
+  eco-server:
+    container_name: eco-server
     build: server/.
+    restart: always
     ports:
       - '3001:3001'
     volumes:
       - app_server_data:/usr/src/app/data
+
+  eco-frontend:
+    container_name: eco-frontend
+    build:
+      context: frontend
+      dockerfile: docker/production/nginx/Dockerfile
+    restart: always
+    ports:
+      - "3002:80"
 
 volumes:
   app_server_data:
