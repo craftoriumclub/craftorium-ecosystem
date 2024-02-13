@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Setup SQLite database
-const db = new sqlite3.Database('./messages.db', (err) => {
+const db = new sqlite3.Database('./data/messages.db', (err) => {
     if (err) {
         console.error(err.message);
     }
