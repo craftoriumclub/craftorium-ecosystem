@@ -1,59 +1,56 @@
-// server/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { bitcore, Message } = require('bitcore-message');
 const sqlite3 = require('sqlite3').verbose();
+const bitcoin = require('bitcoinjs-lib');
+const bitcoinMessage = require('bitcoinjs-message');
 
-// Setup Express
+
 const app = express();
-const port = 3001;
-
 app.use(cors());
 app.use(bodyParser.json());
+const port = 3001;
 
-// Setup SQLite database
-const db = new sqlite3.Database('./data/messages.db', (err) => {
+
+// Initialize SQLite database
+const db = new sqlite3.Database('./messages.db', (err) => {
     if (err) {
-        console.error(err.message);
+        console.error('Failed to connect to the SQLite database:', err.message);
+    } else {
+        console.log('Connected to the SQLite database.');
+        db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, signature TEXT, publicKey TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
-    console.log('Connected to the SQLite database.');
 });
 
-db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, signature TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
 
-// Sign message endpoint
 app.post('/sign', (req, res) => {
-    const { privateKey, message } = req.body;
-    try {
-        const key = new bitcore.PrivateKey(privateKey);
-        const bitcoreMessage = new Message(message);
-        const signature = bitcoreMessage.sign(key);
+    const {privateKeyWIF, messageText} = req.body;
 
-        // Save to database
-        const insert = db.prepare("INSERT INTO messages (message, signature) VALUES (?, ?)");
-        insert.run(message, signature, function(err) {
-            if (err) {
-                return res.status(500).send('Error saving to database');
-            }
-            res.json({ id: this.lastID, signature });
-        });
-        insert.finalize();
+    try {
+        const keyPair = bitcoin.ECPair.fromWIF(privateKeyWIF);
+        const privateKey = keyPair.privateKey;
+        const signature = bitcoinMessage.sign(messageText, privateKey, keyPair.compressed);
+
+        res.json({signature: signature});
     } catch (error) {
+        console.error('Error in /sign:', error);
         res.status(400).send('Invalid data');
     }
 });
 
 // Verify message endpoint
 app.post('/verify', (req, res) => {
-    const { address, message, signature } = req.body;
+    const {address, messageText, signature} = req.body;
+
     try {
-        const verified = new Message(message).verify(address, signature);
-        res.json({ verified });
+        const verified = bitcoinMessage.verify(messageText, address, signature);
+        res.json({verified});
     } catch (error) {
+        console.error('Error in /verify:', error);
         res.status(400).send('Invalid data');
     }
 });
+
 
 app.get('/messages', (req, res) => {
     db.all("SELECT * FROM messages", [], (err, rows) => {
@@ -65,7 +62,7 @@ app.get('/messages', (req, res) => {
     });
 });
 
-// Start server
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

@@ -8,6 +8,7 @@ const MessageSigningForm = () => {
     const [error, setError] = useState('');
 
     const handleSignMessage = async () => {
+        setError('');  // Reset error state
         try {
             const response = await fetch('http://localhost:3001/sign', {
                 method: 'POST',
@@ -18,17 +19,18 @@ const MessageSigningForm = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const errorMsg = await response.text();
+                throw new Error(errorMsg || 'Network response was not ok');
             }
 
             const data = await response.json();
             setSignedMessage(data.signature);
-            setError('');
         } catch (error) {
-            setError('Error signing message');
-            console.error('There was a problem with the fetch operation:', error);
+            setError(error.message);
+            console.error('Error:', error);
         }
     };
+
 
     return (
         <div className="form-container">

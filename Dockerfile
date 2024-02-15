@@ -13,7 +13,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the application files
-COPY . .
+COPY server .
 
 # Expose the port
 EXPOSE 3001
