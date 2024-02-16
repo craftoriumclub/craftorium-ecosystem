@@ -1,41 +1,40 @@
-// src/components/MessagesDisplay.jsx
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
-const MessagesDisplay = () => {
+const DisplayMessages = () => {
     const [messages, setMessages] = useState([]);
-    const [error, setError] = useState('');
+
+    let API;
+    switch (process.env.ENVIRONMENT) {
+        case "dev".toString() :
+            API = "http://localhost:3001".toString();
+            break;
+        case "prod".toString() :
+            API = "https://ibbclub.org/eco-server".toString();
+            break;
+    }
+
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await fetch('http://localhost:3001/messages');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setMessages(data);
-            } catch (error) {
-                setError('Error fetching messages');
-                console.error('There was a problem with the fetch operation:', error);
-            }
-        };
-
-        fetchMessages();
+        // Fetch messages from the backend
+        fetch(`${API}/messages`)
+            .then(response => response.json())
+            .then(data => setMessages(data))
+            .catch(err => console.error('Error fetching messages:', err));
     }, []);
 
     return (
-        <div className="messages-display">
-            <h2>Signed Messages</h2>
+        <div className="messages-list">
+            <h3>Craftorium.Волевиявлення</h3>
             {messages.map((msg, index) => (
-                <div key={index} className="message">
+                <div key={index} className="message-item">
+                    <p><strong>Public Key:</strong> {msg.publicKey}</p>
                     <p><strong>Message:</strong> {msg.message}</p>
                     <p><strong>Signature:</strong> {msg.signature}</p>
                     <p><strong>Timestamp:</strong> {msg.timestamp}</p>
                 </div>
             ))}
-            {error && <div className="error">{error}</div>}
         </div>
     );
 };
 
-export default MessagesDisplay;
+export default DisplayMessages;

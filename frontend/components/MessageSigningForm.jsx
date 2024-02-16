@@ -1,21 +1,43 @@
-// src/components/MessageSigningForm.jsx
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 
 const MessageSigningForm = () => {
-    const [privateKey, setPrivateKey] = useState('');
-    const [message, setMessage] = useState('');
+    const [privateKeyWIF, setPrivateKeyWIF] = useState('');
+    const [publicKey, setPublicKey] = useState('');
+    const [messageText, setMessageText] = useState('');
     const [signedMessage, setSignedMessage] = useState('');
     const [error, setError] = useState('');
 
-    const handleSignMessage = async () => {
-        setError('');  // Reset error state
+
+    const handleCopyToClipboard = (text) => {
+        navigator.clipboard.writeText(text)
+            .then(() => alert('Signature copied to clipboard!'))
+            .catch(err => console.error('Error copying signature:', err));
+    };
+
+    let API;
+    switch (process.env.ENVIRONMENT) {
+        case "dev".toString() :
+            API = "http://localhost:3001".toString();
+            break;
+        case "prod".toString() :
+            API = "https://ibbclub.org/eco-server".toString();
+            break;
+    }
+
+
+    const handleSignMessage = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSignedMessage('');
+
+
         try {
-            const response = await fetch('http://localhost:3001/sign', {
+            const response = await fetch(`${API}/sign`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ privateKey, message }),
+                body: JSON.stringify({publicKey, privateKeyWIF, messageText}),
             });
 
             if (!response.ok) {
@@ -26,7 +48,7 @@ const MessageSigningForm = () => {
             const data = await response.json();
             setSignedMessage(data.signature);
         } catch (error) {
-            setError(error.message);
+            setError(`Error: ${error.message}`);
             console.error('Error:', error);
         }
     };
@@ -34,22 +56,43 @@ const MessageSigningForm = () => {
 
     return (
         <div className="form-container">
-            <h2>Sign a Message</h2>
-            <input
-                className="input"
-                type="text"
-                value={privateKey}
-                onChange={(e) => setPrivateKey(e.target.value)}
-                placeholder="Private Key"
-            />
-            <textarea
-                className="input"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Message"
-            />
-            <button className="button" onClick={handleSignMessage}>Sign Message</button>
-            {signedMessage && <div className="results-container"><strong>Signed Message:</strong> {signedMessage}</div>}
+            <form onSubmit={handleSignMessage}>
+                <div>
+                    <input
+                        type="text"
+                        value={publicKey}
+                        onChange={(e) => setPublicKey(e.target.value)}
+                        placeholder="Enter your Public Key"
+                        className="input"
+                    />
+                </div>
+                <div>
+                    <input
+                        type="text"
+                        value={privateKeyWIF}
+                        onChange={(e) => setPrivateKeyWIF(e.target.value)}
+                        placeholder="Enter your Private Key (WIF)"
+                        className="input"
+                    />
+                </div>
+                <div>
+
+                        <textarea
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                            placeholder="Enter your message"
+                            className="input"
+                        />
+
+                </div>
+                <button type="submit" className="button">Sign Message</button>
+            </form>
+            {signedMessage && (
+                <div className="signed-message" onClick={() => handleCopyToClipboard(signedMessage)}>
+                    <strong>Signed Message (click to copy):</strong>
+                    <span className="signature">{signedMessage}</span>
+                </div>
+            )}
             {error && <div className="error">{error}</div>}
         </div>
     );

@@ -4,6 +4,7 @@ import SignIn from './components/SignIn';
 import MessageSigningForm from './components/MessageSigningForm';
 import MessageVerificationForm from './components/MessageVerificationForm';
 import MessagesDisplay from './components/MessagesDisplay';
+require('dotenv').config()
 
 import './App.css';
 
@@ -19,6 +20,9 @@ const App = ({isSignedIn, wallet}) => {
     return (
         <div className="app-container">
             <main>
+
+                <small>You are running this application in <b>{process.env.ENVIRONMENT}</b> mode.</small>
+
                 <h1>Craftorium Ecosystem</h1>
                 {isSignedIn
                     ? (
