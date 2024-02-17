@@ -14,7 +14,7 @@ const port = 3001;
 
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./messages.db', (err) => {
+const db = new sqlite3.Database('./data/messages.db', (err) => {
     if (err) {
         console.error('Failed to connect to the SQLite database:', err.message);
     } else {
