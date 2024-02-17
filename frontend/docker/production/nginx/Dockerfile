@@ -6,7 +6,7 @@ RUN npm install -g node-gyp
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
-COPY ./ ./
+COPY . .
 RUN npm run build
 
 FROM nginx:stable-alpine as production-stage
