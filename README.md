@@ -1,9 +1,9 @@
 Craftorium Ecosystem
 
-To run locally in server/frontend craftorium-ecosystem
+To run locally in craftorium-ecosystem
 
 ```
-npm run start
+npm start
 ```
 
 
@@ -12,10 +12,6 @@ Run project production:
 ```shell
 $ cd craftorium-ecosystem
 $ git pull origin master
-$ cd server
-$ docker-compose up --build -d
-$ cd ..
-$ cd frontend
 $ docker-compose up --build -d
 ```
 
