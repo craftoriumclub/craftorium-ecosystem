@@ -4,10 +4,10 @@ RUN [ -e /usr/bin/python ] || ln -s /usr/bin/python3 /usr/bin/python
 ENV PYTHON=/usr/bin/python
 RUN npm install -g node-gyp
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install
+COPY package.json ./
+RUN yarn install
 COPY ./ ./
-RUN npm run build
+RUN yarn build:prod
 
 FROM nginx:stable-alpine as production-stage
 COPY docker/production/nginx/conf.d /etc/nginx/conf.d
