@@ -50,10 +50,13 @@ app.post('/sign', async (req, res) => {
 
         const lastID = await insertMessage(db, publicKey, messageText, signatureBase64, timestamp);
         res.json({id: lastID, signature: signatureBase64});
+
     } catch (error) {
         console.error('Error in /sign:', error);
-        res.status(400).send('Invalid data');
+        res.status(400).send('Can`t do signing');
     }
+
+
 });
 
 // Verify message endpoint

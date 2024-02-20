@@ -30,6 +30,7 @@ const MessageSigningForm = () => {
         setError('');
         setSignedMessage('');
 
+        console.log(`${API}/sign`);
 
         try {
             const response = await fetch(`${API}/sign`, {
