@@ -19,12 +19,25 @@ const db = new sqlite3.Database('./data/messages.db', (err) => {
         console.error('Failed to connect to the SQLite database:', err.message);
     } else {
         console.log('Connected to the SQLite database.');
-        db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT,publicKey TEXT,  message TEXT, signature TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
+        db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, publicKey TEXT,  message TEXT, signature TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
 });
 
+function insertMessage(db, publicKey, messageText, signatureBase64, timestamp) {
+    return new Promise((resolve, reject) => {
+        const sql = "INSERT INTO messages (publicKey, message, signature, timestamp) VALUES (?, ?, ?, ?)";
+        db.run(sql, [publicKey, messageText, signatureBase64, timestamp], function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.lastID);
+            }
+        });
+    });
+}
 
-app.post('/sign', (req, res) => {
+
+app.post('/sign', async (req, res) => {
     const {publicKey, privateKeyWIF, messageText} = req.body;
 
     try {
@@ -35,18 +48,8 @@ app.post('/sign', (req, res) => {
         const signatureBase64 = signature.toString('base64');
         const timestamp = new Date().toString();
 
-        // Insert into database
-        const insert = db.prepare("INSERT INTO messages (publicKey, message, signature, timestamp) VALUES (?, ?, ?, ?)");
-        insert.run(publicKey, messageText, signatureBase64, timestamp, function (err) {
-            if (err) {
-                console.error('Database error:', err.message);
-                return res.status(500).send('Error saving to database');
-            }
-        });
-        insert.finalize();
-
-
-        res.json({signature: signature.toString('base64')});
+        const lastID = await insertMessage(db, publicKey, messageText, signatureBase64, timestamp);
+        res.json({id: lastID, signature: signatureBase64});
     } catch (error) {
         console.error('Error in /sign:', error);
         res.status(400).send('Invalid data');
